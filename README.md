@@ -1,6 +1,6 @@
 # Heise Archiv Downloader
 
-This is an easy bash script for downloading the PDF's per year out of the Heise magazine archiv.
+This is an easy bash script for bulk downloading the PDF's per year out of the Heise magazine archiv.
 You have to enter your credentials at "YOURLOGIN" and "YOURPW".
 Copy this script to your Linux, make it executable and run the script. Parameter 1 is the year.
 

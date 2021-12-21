@@ -1,0 +1,28 @@
+#!/bin/sh
+if [ "$1" = "" ]; then
+echo "Usage: $0 year"
+exit 1
+fi
+
+year=${1}
+
+scratch=/tmp/$(date +%s)
+
+curl -b ${scratch} -c ${scratch} -k -L "https://www.heise.de/sso/login" >/dev/null 2>&1
+
+curl -b ${scratch} -c ${scratch} -k -L -F 'forward=' -F 'username=YOURLOGIN' -F 'password=YOURPW' -F 'ajax=1' "https://www.heise.de/sso/login/login" -o ${scratch}.html
+token1=`cat ${scratch}.html | sed "s/token/\ntoken/g" | grep ^token | head -1 | cut -f 3 -d '"'`
+token2=`cat ${scratch}.html | sed "s/token/\ntoken/g" | grep ^token | head -2 | tail -1 | cut -f 3 -d '"'`
+
+curl -b ${scratch} -c ${scratch} -k -L -F "token=${token1}" "https://m.heise.de/sso/login/remote-login" >/dev/null 2>&1
+
+curl -b ${scratch} -c ${scratch} -k -L -F "token=${token2}" "https://shop.heise.de/customer/account/loginRemote" >/dev/null 2>&1
+
+for i in `seq -f %g 1 27`; do
+	if [ ! -f ${year}/ct.${year}.${i}.pdf ]; then
+		curl -b ${scratch} -f -k -L --retry 99 "https://www.heise.de/select/ct/archiv/${year}/${i}/download" -o ${year}/ct.${year}.${i}.pdf --create-dirs
+		curl -b ${scratch} -f -k -L --retry 99 "https://heise.cloudimg.io/v7/_www-heise-de_/select/thumbnail/ct/${year}/${i}.jpg" -o ${year}/ct.${year}.${i}.jpg --create-dirs
+	fi
+done
+
+rm -f ${scratch}.html ${scratch}
